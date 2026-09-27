@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kevin Online Portfolio</title>
 
-    <!-- Google Fonts & FontAwesome -->
+    <!-- Google Fonts & FontAwesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="48x48" href="./portfolio_icon-48.png">
 
@@ -42,7 +42,6 @@
         }
     </script>
 
-    <!-- Custom Office App & Multi-Page Print Styles -->
     <style>
         body {
             font-family: 'Segoe UI', Aptos, Arial, sans-serif;
@@ -51,7 +50,7 @@
             user-select: none;
         }
 
-        /* Excel Background Grid */
+        /* Excel Background Grid Lines */
         .excel-grid-bg {
             background-size: 120px 32px;
             background-image: 
@@ -65,7 +64,7 @@
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         }
 
-        /* Custom Scrollbars */
+        /* Custom Office Scrollbars */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -84,12 +83,12 @@
             background: #979593;
         }
 
-        /* Office Card Elevation */
+        /* Office Card Styles */
         .office-card {
             background: #ffffff;
             border: 1px solid #d1d1d1;
             box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
-            transition: all 0.2s ease-in-out;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .dark .office-card {
@@ -99,7 +98,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        /* Ribbon Active Tab */
+        /* Ribbon Active Tab Header */
         .ribbon-tab.active {
             background-color: #ffffff;
             color: #107c41;
@@ -116,17 +115,62 @@
             border-bottom-color: #4caf50;
         }
 
-        /* Workspace Scaling */
+        /* Workspace Zoom Scaling Container */
         #workspace-content {
             transform-origin: top center;
             transition: transform 0.15s ease-out;
         }
 
         /* ==========================================================================
+           DYNAMIC SCROLL ANIMATIONS FOR VERTICAL TIMELINE
+           ========================================================================== */
+        .timeline-card-left {
+            opacity: 0;
+            transform: translateX(-60px) scale(0.95) rotate(-1deg);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .timeline-card-right {
+            opacity: 0;
+            transform: translateX(60px) scale(0.95) rotate(1deg);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .timeline-card-left.in-view,
+        .timeline-card-right.in-view {
+            opacity: 1;
+            transform: translateX(0) scale(1) rotate(0deg);
+        }
+
+        /* Timeline Central Dot Node Animation */
+        .timeline-node {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .timeline-node.active-node {
+            transform: translate(-50%, 0) scale(1.35) !important;
+            background-color: #107c41 !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 0 6px rgba(16, 124, 65, 0.3), 0 0 20px rgba(16, 124, 65, 0.6);
+        }
+
+        .theme-word .timeline-node.active-node {
+            background-color: #2b579a !important;
+            box-shadow: 0 0 0 6px rgba(43, 87, 154, 0.3), 0 0 20px rgba(43, 87, 154, 0.6);
+        }
+
+        /* Fill overlay bar for timeline line */
+        #timeline-progress-line {
+            transition: height 0.1s linear;
+        }
+
+        /* ==========================================================================
            CRITICAL MULTI-PAGE PRINT STYLESHEETS
            ========================================================================== */
         @media print {
-            /* 1. Hide interactive Office Chrome UI elements */
             #app-titlebar,
             #app-ribbon,
             #formula-bar,
@@ -140,7 +184,6 @@
                 display: none !important;
             }
 
-            /* 2. Remove overflow & height locks to allow unlimited natural print scrolling */
             html, body {
                 height: auto !important;
                 min-height: auto !important;
@@ -163,12 +206,11 @@
                 max-width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                transform: none !important; /* Reset zoom scaling for crisp print */
+                transform: none !important;
                 background: #ffffff !important;
                 box-shadow: none !important;
             }
 
-            /* 3. Force all timeline cards and sheet sections to print */
             section {
                 display: block !important;
                 opacity: 1 !important;
@@ -186,7 +228,12 @@
                 break-inside: avoid !important;
             }
 
-            /* Convert alternating two-column cards into a clean vertical print document layout */
+            .timeline-card-left,
+            .timeline-card-right {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
             #timeline-container {
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
@@ -204,14 +251,16 @@
                 padding-right: 0 !important;
             }
 
-            .timeline-card .absolute {
+            .timeline-node {
                 left: 12px !important;
+                transform: none !important;
                 width: 1.25rem !important;
                 height: 1.25rem !important;
                 font-size: 8pt !important;
                 background-color: #000000 !important;
                 color: #ffffff !important;
                 border: none !important;
+                box-shadow: none !important;
             }
 
             .office-card {
@@ -224,7 +273,6 @@
                 break-inside: avoid !important;
             }
 
-            /* Print Header Banner */
             .print-header-banner {
                 display: block !important;
                 border-bottom: 2px solid #000000;
@@ -232,7 +280,6 @@
                 margin-bottom: 1.5rem;
             }
 
-            /* Ensure all table rows print cleanly */
             table {
                 width: 100% !important;
                 border-collapse: collapse !important;
@@ -244,7 +291,6 @@
                 padding: 6px 8px !important;
             }
 
-            /* Show hyperlinked URLs in print view */
             a[href]:after {
                 content: " (" attr(href) ")";
                 font-size: 8.5pt;
@@ -261,7 +307,7 @@
 
     <!-- 1. MICROSOFT OFFICE TITLE BAR -->
     <header id="app-titlebar" class="bg-office-excel text-white h-9 flex items-center justify-between px-3 shrink-0 shadow-sm transition-colors duration-200">
-        <!-- Left: Quick Access Toolbar -->
+        <!-- Quick Access Toolbar -->
         <div class="flex items-center space-x-3 text-xs">
             <div class="flex items-center space-x-2 border-r border-white/20 pr-3">
                 <i class="fa-solid fa-file-excel text-sm" id="app-type-icon"></i>
@@ -273,7 +319,7 @@
                 <i class="fa-solid fa-print"></i>
                 <span class="text-[11px] font-semibold hidden md:inline">Print / PDF</span>
             </button>
-            <button onclick="saveDocumentSimulated()" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Save Copy">
+            <button onclick="saveDocumentSimulated()" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Save File">
                 <i class="fa-regular fa-floppy-disk"></i>
             </button>
             <button onclick="showToast('Undo Action', 'Previous spreadsheet view restored')" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Undo">
@@ -281,13 +327,13 @@
             </button>
         </div>
 
-        <!-- Center: File Title -->
+        <!-- Center Document Title -->
         <div class="flex items-center space-x-2 text-xs font-semibold truncate px-2">
             <span class="truncate" id="doc-title-text">Career_Timeline_Portfolio_YeungCheukKwan.xlsx</span>
-            <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] uppercase font-normal hidden md:inline">Ready for Print & PDF</span>
+            <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] uppercase font-normal hidden md:inline">Interactive Resume</span>
         </div>
 
-        <!-- Right: Window Controls -->
+        <!-- Window Controls -->
         <div class="flex items-center space-x-1 text-xs">
             <button onclick="copyToClipboard('kevinyeung95m@gmail.com', 'Email Address')" class="hover:bg-white/20 px-2.5 py-1 rounded text-xs flex items-center space-x-1.5">
                 <i class="fa-solid fa-share-nodes"></i>
@@ -306,19 +352,20 @@
         <!-- Ribbon Header Tabs -->
         <div class="flex items-center px-2 pt-1 border-b border-slate-300 dark:border-zinc-700 text-xs bg-slate-200/60 dark:bg-zinc-800/80 overflow-x-auto">
             <button class="px-3 py-1.5 font-medium border-r border-slate-300 dark:border-zinc-700 bg-emerald-700 text-white dark:bg-emerald-800" id="fileMenuBtn">File</button>
-            <button onclick="switchRibbonTab('home')" class="ribbon-tab active px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Home</button>
-            <button onclick="switchRibbonTab('timeline')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Career Timeline</button>
+            <button onclick="switchRibbonTab('home')" class="ribbon-tab active px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Home / Summary</button>
+            <button onclick="switchRibbonTab('timeline')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Animated Timeline</button>
+            <button onclick="switchRibbonTab('projects')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Projects</button>
             <button onclick="switchRibbonTab('skills')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Skills Matrix</button>
             <button onclick="triggerPrintDocument()" class="ribbon-tab px-3 py-1.5 text-emerald-800 dark:text-emerald-400 font-bold hover:bg-emerald-100 dark:hover:bg-zinc-700 cursor-pointer flex items-center gap-1">
                 <i class="fa-solid fa-print"></i>
-                <span>Print / PDF View</span>
+                <span>Print / PDF Export</span>
             </button>
         </div>
 
         <!-- Ribbon Action Controls Panel -->
         <div class="p-2 flex items-center space-x-4 overflow-x-auto text-xs min-h-[68px]" id="ribbon-actions-container">
             
-            <!-- Group 1: Print Action Button (Prominent) -->
+            <!-- Group 1: Print Action Button -->
             <div class="flex items-center border-r border-slate-300 dark:border-zinc-700 pr-3">
                 <button onclick="triggerPrintDocument()" class="flex flex-col items-center justify-center px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded shadow-sm transition-all group">
                     <i class="fa-solid fa-print text-lg mb-0.5 group-hover:scale-110 transition-transform"></i>
@@ -339,33 +386,33 @@
                 </button>
             </div>
 
-            <!-- Group 3: Excel Category Filter Dropdown -->
+            <!-- Group 3: Category Filter -->
             <div class="flex flex-col justify-center border-r border-slate-300 dark:border-zinc-700 pr-3 space-y-1">
-                <span class="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Spreadsheet Data Filter</span>
+                <span class="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Spreadsheet Filter</span>
                 <div class="flex items-center space-x-1">
                     <i class="fa-solid fa-filter text-emerald-700 dark:text-emerald-500"></i>
                     <select id="ribbonCategorySelect" onchange="filterTimeline(this.value)" class="bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-600">
-                        <option value="all">📊 All Career Records (Default)</option>
-                        <option value="work">💼 Work Experience Only</option>
-                        <option value="project">🚀 E-Commerce & Projects</option>
-                        <option value="education">🎓 Degree & Post-Grad Education</option>
+                        <option value="all">📊 All Timeline Items</option>
+                        <option value="work">💼 Work Experience</option>
+                        <option value="project">🚀 E-Commerce Projects</option>
+                        <option value="education">🎓 Education Credentials</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Group 4: Office Theme Switcher -->
+            <!-- Group 4: App Theme Options -->
             <div class="flex items-center space-x-2">
                 <button onclick="setOfficeTheme('excel')" class="px-2.5 py-1.5 bg-emerald-700 text-white rounded shadow-sm hover:bg-emerald-800 font-medium text-xs flex items-center space-x-1">
                     <i class="fa-solid fa-file-excel"></i>
-                    <span>Excel</span>
+                    <span>Excel Mode</span>
                 </button>
                 <button onclick="setOfficeTheme('word')" class="px-2.5 py-1.5 bg-blue-700 text-white rounded shadow-sm hover:bg-blue-800 font-medium text-xs flex items-center space-x-1">
                     <i class="fa-solid fa-file-word"></i>
-                    <span>Word</span>
+                    <span>Word Mode</span>
                 </button>
                 <button onclick="toggleDarkMode()" class="px-2.5 py-1.5 bg-zinc-700 text-white rounded shadow-sm hover:bg-zinc-800 font-medium text-xs flex items-center space-x-1">
                     <i class="fa-solid fa-moon"></i>
-                    <span>Dark</span>
+                    <span>Dark UI</span>
                 </button>
             </div>
 
@@ -375,13 +422,13 @@
     <!-- 3. EXCEL FORMULA BAR -->
     <div id="formula-bar" class="bg-white dark:bg-zinc-900 border-b border-slate-300 dark:border-zinc-800 px-3 py-1.5 flex items-center space-x-2 text-xs shrink-0">
         <!-- Active Cell Box -->
-        <div class="bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 px-2.5 py-1 font-mono font-bold text-slate-700 dark:text-zinc-300 rounded min-w-[110px] text-center" id="activeCellRef">
+        <div class="bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 px-2.5 py-1 font-mono font-bold text-slate-700 dark:text-zinc-300 rounded min-w-[120px] text-center" id="activeCellRef">
             A1:SUMMARY
         </div>
 
         <div class="text-slate-400 font-bold px-1 select-none">|</div>
 
-        <!-- Formula fx icon -->
+        <!-- Formula fx Icon -->
         <div class="font-serif italic font-bold text-emerald-700 dark:text-emerald-500 px-1 text-sm select-none">
             fx
         </div>
@@ -392,7 +439,7 @@
                 type="text" 
                 id="formulaBarInput"
                 oninput="onFormulaSearchInput(this.value)"
-                placeholder="=FILTER(CareerData, Skill='Python, FreeRTOS, Shopify, AWS, Odoo, React, C++')" 
+                placeholder="=FILTER(TimelineData, Skills='Python, FreeRTOS, Shopify, AWS, Odoo, React, C++')" 
                 class="w-full bg-slate-50 dark:bg-zinc-800/90 border border-slate-300 dark:border-zinc-700 rounded px-3 py-1 font-mono text-xs text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:bg-white"
             >
             <button onclick="clearFormulaSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200" title="Clear Filter">
@@ -404,7 +451,7 @@
     <!-- 4. MAIN WORKSPACE CANVAS -->
     <div class="flex-1 overflow-auto bg-slate-200/70 dark:bg-zinc-950 p-4 sm:p-6 excel-grid-bg relative" id="workspace-container">
         
-        <!-- PRINT HEADER BANNER (Only displays on printed paper pages) -->
+        <!-- PRINT HEADER BANNER (Paper Print Only) -->
         <div class="print-header-banner">
             <h1 class="text-2xl font-bold">YEUNG CHEUK KWAN (KEVIN)</h1>
             <p class="text-xs">Software Developer & Embedded Software Engineer | Phone: +852 98508777 | Email: kevinyeung95m@gmail.com</p>
@@ -430,7 +477,7 @@
                         </p>
                     </div>
 
-                    <!-- Direct Contact Badges -->
+                    <!-- Direct Contact Links -->
                     <div class="flex flex-col sm:flex-row md:flex-col gap-2 w-full md:w-auto text-xs">
                         <a href="mailto:kevinyeung95m@gmail.com" class="flex items-center space-x-2 px-3 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-zinc-700 rounded border border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors">
                             <i class="fa-solid fa-envelope text-emerald-700 dark:text-emerald-400"></i>
@@ -443,7 +490,7 @@
                     </div>
                 </div>
 
-                <!-- Executive Summary Text Box -->
+                <!-- Executive Summary Content -->
                 <div class="mt-6 space-y-4 text-slate-700 dark:text-zinc-300 text-sm leading-relaxed">
                     <div class="bg-slate-50 dark:bg-zinc-800/60 p-4 rounded border border-slate-200 dark:border-zinc-700/80">
                         <h2 class="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -451,11 +498,11 @@
                             Executive Profile & Professional Overview
                         </h2>
                         <p>
-                            Results-oriented Software Developer and Embedded Software Engineer with extensive experience spanning full-stack web development, e-commerce applications, enterprise ERP customization (Odoo), cloud infrastructure deployment (AWS Fargate/EC2, Docker, CI/CD), and embedded C real-time DSP systems (FreeRTOS, low-level serial communication protocols). Proven track record delivering end-to-end scalable solutions from low-level firmware to modern AI-assisted web applications.
+                            Versatile Software Developer and Embedded Software Engineer with multi-disciplinary experience spanning full-stack web development, ERP enterprise module customization (Odoo), e-commerce applications (Shopify, Liquid, Node.js), cloud microservices infrastructure (AWS Fargate, Docker, Jenkins), and real-time embedded DSP systems (C/C++, FreeRTOS, low-level serial communication protocols). Proven capability in delivering reliable, high-performance software from bare-metal microprocessors to modern AI-assisted web applications.
                         </p>
                     </div>
 
-                    <!-- Key Pillars Spreadsheet Metrics -->
+                    <!-- Spreadsheet Quick Metrics -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 font-mono text-xs">
                         <div class="p-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded text-center">
                             <span class="text-slate-400 block text-[10px]">TOTAL_EXP</span>
@@ -484,35 +531,35 @@
                 <div class="bg-slate-100 dark:bg-zinc-800 p-3 rounded border border-slate-300 dark:border-zinc-700 flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <span class="bg-emerald-700 text-white font-mono text-xs font-bold px-2 py-1 rounded">SHEET_2</span>
-                        <h2 class="font-bold text-slate-800 dark:text-zinc-100 text-base">Interactive Career & Experience Timeline</h2>
+                        <h2 class="font-bold text-slate-800 dark:text-zinc-100 text-base">Interactive Career Timeline</h2>
                     </div>
-                    <button onclick="triggerPrintDocument()" class="text-xs text-emerald-700 dark:text-emerald-400 hover:underline font-mono font-bold flex items-center space-x-1">
-                        <i class="fa-solid fa-print"></i>
-                        <span>Print Sheet</span>
-                    </button>
+                    <span class="text-xs font-mono text-slate-500 dark:text-zinc-400 hidden sm:inline">Scroll up / down to animate entries</span>
                 </div>
 
-                <!-- Timeline Container with Central Line -->
+                <!-- Timeline Container with Central Line & Fill Animation -->
                 <div class="relative py-6" id="timeline-container">
                     
-                    <!-- Vertical Central Accent Line -->
-                    <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-emerald-700 dark:bg-emerald-600 rounded transform md:-translate-x-1/2 z-0 opacity-80" id="timeline-line"></div>
+                    <!-- Base Vertical Line -->
+                    <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-slate-300 dark:bg-zinc-700 rounded transform md:-translate-x-1/2 z-0" id="timeline-line">
+                        <!-- Scroll Progress Fill Overlay -->
+                        <div class="w-full bg-emerald-600 dark:bg-emerald-500 rounded h-0" id="timeline-progress-line"></div>
+                    </div>
 
-                    <!-- TIMELINE ITEMS CONTAINER -->
-                    <div class="space-y-10 relative z-10" id="timeline-items-wrapper">
+                    <!-- TIMELINE CARDS CONTAINER -->
+                    <div class="space-y-12 relative z-10" id="timeline-items-wrapper">
 
-                        <!-- 1. Digital Star (Work - Left Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="digital star software developer odoo python javascript shopify best buy aws fargate docker alb wisbot react flask rest api jenkins git">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 1: Digital Star (Work - Left Card) -->
+                        <div class="timeline-card timeline-card-left relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="digital star software developer odoo python javascript shopify best buy aws fargate docker alb wisbot react flask rest api jenkins git">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 1
                             </div>
 
                             <!-- Left Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                            <div class="w-full md:w-1/2 md:pr-12 pl-14 md:pl-0">
                                 <div onclick="setActiveCell('B2:DIGITAL_STAR'); openInspectModal('digital-star')" class="office-card rounded-md p-5 cursor-pointer hover:border-emerald-600 transition-all border-l-4 border-l-emerald-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
                                             Dec 2023 - Sep 2026
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
@@ -528,8 +575,8 @@
 
                                     <ul class="text-xs text-slate-700 dark:text-zinc-300 space-y-1.5 list-disc list-inside leading-relaxed">
                                         <li>Developed and customized <strong>Odoo ERP modules</strong> in Python and JavaScript for client needs, focusing on scalability and performance.</li>
-                                        <li>Integrated PHD Energy Odoo ERP with <strong>Texas Instruments API</strong> using Python scripts.</li>
-                                        <li>Built a custom Shopify app enabling in-store pickup at Best Buy (Liquid frontend, Node.js backend): deployed on <strong>AWS Fargate with Docker</strong>, ALB for load balancing, and auto-scaling for high availability.</li>
+                                        <li>Integrated PHD Energy Odoo ERP with <strong>Texas Instruments API</strong> using Python.</li>
+                                        <li>Built a custom Shopify app enabling in-store pickup at Best Buy (Liquid frontend, Node.js backend): deployed on <strong>AWS Fargate with Docker</strong>, ALB for load balancing, and auto-scaling.</li>
                                         <li>Contributed to <strong>run.wisbot.ai</strong> (AI tool for non-coders to write Python code): React.js frontend, Flask + WSGI backend added Stripe payments; deployed on AWS EC2.</li>
                                         <li>Customized Shopify themes with Liquid, HTML, CSS, JavaScript, and React.js.</li>
                                         <li>Implemented CI/CD pipelines with Git and Jenkins for Odoo deployments.</li>
@@ -541,10 +588,6 @@
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">AWS Fargate</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Docker</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">React / Flask</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">MySQL</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
                                     </div>
                                 </div>
                             </div>
@@ -552,24 +595,24 @@
                             <div class="hidden md:block w-1/2"></div>
                         </div>
 
-                        <!-- 2. SemiBuyx (Project - Right Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="semibuyx project fullstack e-commerce ecommerce canadian products hong kong ai development semibuyx.duckdns.org catalog cart checkout">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 2: SemiBuyx (Project - Right Card) -->
+                        <div id="projects-section" class="timeline-card timeline-card-right relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="semibuyx project fullstack e-commerce ecommerce canadian products hong kong ai development semibuyx.duckdns.org catalog cart checkout">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-blue-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 2
                             </div>
 
                             <div class="hidden md:block w-1/2"></div>
 
                             <!-- Right Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                            <div class="w-full md:w-1/2 md:pl-12 pl-14">
                                 <div onclick="setActiveCell('C2:SEMIBUYX'); openInspectModal('semibuyx')" class="office-card rounded-md p-5 cursor-pointer hover:border-blue-600 transition-all border-l-4 border-l-blue-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2 py-0.5 rounded border border-blue-300 dark:border-blue-800">
-                                            Featured Project
+                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2.5 py-0.5 rounded border border-blue-300 dark:border-blue-800">
+                                            Featured Web App
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
-                                            [FEATURED E-COMMERCE]
+                                            [FEATURED PROJECT]
                                         </span>
                                     </div>
 
@@ -589,28 +632,24 @@
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Full-Stack</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">AI-Assisted Dev</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">E-Commerce</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">MySQL</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 3. Greenworks Tools E-Shop (Project - Left Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="greenworks tools e-shop shopify store liquid custom theme frontend HTML CSS javascript">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 3: Greenworks Tools E-Shop (Project - Left Card) -->
+                        <div class="timeline-card timeline-card-left relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="greenworks tools e-shop shopify store liquid custom theme frontend HTML CSS javascript">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-blue-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 3
                             </div>
 
                             <!-- Left Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                            <div class="w-full md:w-1/2 md:pr-12 pl-14 md:pl-0">
                                 <div onclick="setActiveCell('C3:GREENWORKS'); openInspectModal('greenworks')" class="office-card rounded-md p-5 cursor-pointer hover:border-blue-600 transition-all border-l-4 border-l-blue-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2 py-0.5 rounded border border-blue-300 dark:border-blue-800">
-                                            E-Commerce Project
+                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2.5 py-0.5 rounded border border-blue-300 dark:border-blue-800">
+                                            Shopify E-Commerce
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
                                             [SHOPIFY STORE]
@@ -633,8 +672,6 @@
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Shopify Liquid</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">JavaScript</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Theme Customization</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
                                     </div>
                                 </div>
                             </div>
@@ -642,24 +679,24 @@
                             <div class="hidden md:block w-1/2"></div>
                         </div>
 
-                        <!-- 4. George Brown College (Education - Right Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="george brown college post-graduate certificate mobile application development canada toronto react native kotlin swift">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 4: George Brown College (Education - Right Card) -->
+                        <div class="timeline-card timeline-card-right relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="george brown college post-graduate certificate mobile application development canada toronto react native kotlin swift">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-purple-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 4
                             </div>
 
                             <div class="hidden md:block w-1/2"></div>
 
                             <!-- Right Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                            <div class="w-full md:w-1/2 md:pl-12 pl-14">
                                 <div onclick="setActiveCell('D1:GEORGE_BROWN'); openInspectModal('george-brown')" class="office-card rounded-md p-5 cursor-pointer hover:border-purple-600 transition-all border-l-4 border-l-purple-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2 py-0.5 rounded border border-purple-300 dark:border-purple-800">
+                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2.5 py-0.5 rounded border border-purple-300 dark:border-purple-800">
                                             Jan 2023 - Sep 2023
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
-                                            [EDUCATION & CREDENTIAL]
+                                            [EDUCATION CREDENTIAL]
                                         </span>
                                     </div>
 
@@ -667,30 +704,29 @@
                                     <p class="text-xs font-bold text-purple-700 dark:text-purple-400">Post-Graduate Certificate in Mobile Application Development</p>
 
                                     <p class="text-xs text-slate-700 dark:text-zinc-300 mt-2">
-                                        Specialized post-graduate training covering modern cross-platform & native mobile application architectures (iOS / Android), API integration, and cloud datastores.
+                                        Specialized post-graduate training covering modern mobile application development for iOS and Android platforms, cross-platform apps, mobile architecture, and cloud services.
                                     </p>
 
                                     <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Mobile App Dev</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Kotlin / Swift</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 5. XMOS LIMITED (Work - Left Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="xmos limited embedded software engineer c c++ freertos fpga dsp digital signal processing audio tv set-top boxes smart speakers robots spi i2c i2s">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 5: XMOS LIMITED (Work - Left Card) -->
+                        <div class="timeline-card timeline-card-left relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="xmos limited embedded software engineer c c++ freertos fpga dsp digital signal processing audio tv set-top boxes smart speakers robots spi i2c i2s">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 5
                             </div>
 
                             <!-- Left Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                            <div class="w-full md:w-1/2 md:pr-12 pl-14 md:pl-0">
                                 <div onclick="setActiveCell('B3:XMOS_LIMITED'); openInspectModal('xmos')" class="office-card rounded-md p-5 cursor-pointer hover:border-emerald-600 transition-all border-l-4 border-l-emerald-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
                                             Dec 2018 - May 2022
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
@@ -715,7 +751,6 @@
                                     <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Embedded C</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">FreeRTOS</span>
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Altium Designer</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">FPGA / DSP</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">SPI / I2C / I2S</span>
                                     </div>
@@ -725,20 +760,20 @@
                             <div class="hidden md:block w-1/2"></div>
                         </div>
 
-                        <!-- 6. City University of Hong Kong (Education - Right Card) -->
-                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="city university of hong kong bachelor of engineering electronic and communication engineering BEng cityu circuit signal processing">
-                            <!-- Timeline Dot Indicator -->
-                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                        <!-- CARD 6: City University of Hong Kong (Education - Right Card) -->
+                        <div class="timeline-card timeline-card-right relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="city university of hong kong bachelor of engineering electronic and communication engineering BEng cityu circuit signal processing">
+                            <!-- Timeline Dot Indicator Node -->
+                            <div class="timeline-node absolute left-4 md:left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-purple-800 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
                                 6
                             </div>
 
                             <div class="hidden md:block w-1/2"></div>
 
                             <!-- Right Card (Desktop) -->
-                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                            <div class="w-full md:w-1/2 md:pl-12 pl-14">
                                 <div onclick="setActiveCell('D2:CITY_U'); openInspectModal('cityu')" class="office-card rounded-md p-5 cursor-pointer hover:border-purple-600 transition-all border-l-4 border-l-purple-700">
                                     <div class="flex items-center justify-between gap-2 mb-2">
-                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2 py-0.5 rounded border border-purple-300 dark:border-purple-800">
+                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2.5 py-0.5 rounded border border-purple-300 dark:border-purple-800">
                                             Sep 2014 - Jul 2018
                                         </span>
                                         <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
@@ -750,11 +785,11 @@
                                     <p class="text-xs font-bold text-purple-700 dark:text-purple-400">Bachelor of Engineering in Electronic and Communication Engineering</p>
 
                                     <p class="text-xs text-slate-700 dark:text-zinc-300 mt-2">
-                                        Core engineering degree with focused study on electronic circuits, wireless communications, microprocessor system design, digital signal processing algorithms, and hardware fundamentals.
+                                        Core engineering degree covering electronic circuits, digital signal processing algorithms, hardware design fundamentals, and wireless communication protocols.
                                     </p>
 
                                     <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
-                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">BEng Electronic</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">BEng Degree</span>
                                         <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Signal & Comms</span>
                                     </div>
                                 </div>
@@ -793,7 +828,7 @@
                                 <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
                                     C, C++, Python, Java, JavaScript, Kotlin, Swift, HTML, CSS, Node.js, React, React Native
                                 </td>
-                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Real-Time Firmware & Modern Web/Mobile</td>
+                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Real-Time Firmware & Modern Web/Mobile Apps</td>
                             </tr>
                             <tr class="hover:bg-emerald-50/50 dark:hover:bg-zinc-800/50">
                                 <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">2</td>
@@ -807,7 +842,7 @@
                                 <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">3</td>
                                 <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold text-purple-800 dark:text-purple-400">Tools & DevOps</td>
                                 <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
-                                    Git, Jenkins, AWS (EC2, Fargate, ALB), Docker, Shopify, WSGI, Restful APIs, Odoo ERP, Altium Designer
+                                    Git, Jenkins, AWS (EC2, Fargate, ALB), Docker, Shopify, WSGI
                                 </td>
                                 <td class="p-2.5 text-slate-600 dark:text-zinc-400">Cloud Microservices, Containers, CI/CD</td>
                             </tr>
@@ -839,10 +874,11 @@
 
             <div class="h-3 border-r border-white/30 hidden sm:block"></div>
 
-            <!-- Spreadsheet Tab Navigation Strip -->
+            <!-- Sheet Tabs Bar -->
             <div class="hidden sm:flex items-center space-x-1 text-[11px] font-medium" id="sheetTabs">
                 <button onclick="scrollToSection('summary-section')" class="px-2.5 py-0.5 bg-white text-emerald-800 font-bold rounded-t shadow-sm">📊 Overview</button>
-                <button onclick="scrollToSection('timeline-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">⏳ Career Timeline</button>
+                <button onclick="scrollToSection('timeline-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">⏳ Timeline</button>
+                <button onclick="scrollToSection('projects-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">🚀 Projects</button>
                 <button onclick="scrollToSection('skills-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">🛠️ Skills Matrix</button>
                 <button onclick="triggerPrintDocument()" class="px-2.5 py-0.5 bg-emerald-900/60 hover:bg-emerald-900 rounded-t text-emerald-200 font-mono">🖨️ Printable View</button>
             </div>
@@ -875,7 +911,7 @@
             </div>
 
             <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="modalBody">
-                <!-- Dynamically populated -->
+                <!-- Content injected dynamically -->
             </div>
 
             <div class="bg-slate-100 dark:bg-zinc-800 px-4 py-2.5 border-t border-slate-300 dark:border-zinc-700 flex items-center justify-end space-x-2">
@@ -897,9 +933,9 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION & PRINT ENGINE LOGIC -->
+    <!-- JAVASCRIPT APPLICATION, SCROLL OBSERVER, AND INTERACTION LOGIC -->
     <script>
-        // Modal item details store
+        /* Detailed modal mapping */
         const itemDetailsMap = {
             'digital-star': {
                 title: 'Digital Star - Software Developer Role Details',
@@ -907,13 +943,13 @@
                 period: 'Dec 2023 - Sep 2026',
                 content: `
                     <div class="space-y-3">
-                        <p class="font-bold text-slate-800 dark:text-zinc-100">Core Engineering Achievements:</p>
+                        <p class="font-bold text-slate-800 dark:text-zinc-100">Core Engineering Accomplishments:</p>
                         <div class="bg-slate-50 dark:bg-zinc-800 p-3 rounded border border-slate-200 dark:border-zinc-700 space-y-2">
-                            <p><strong>1. Odoo ERP Customization:</strong> Developed and customized Odoo ERP modules in Python and JavaScript focused on performance and scale.</p>
-                            <p><strong>2. Hardware API Integration:</strong> Connected PHD Energy Odoo ERP with Texas Instruments API using Python.</p>
-                            <p><strong>3. Shopify App for Best Buy:</strong> Built in-store pickup Shopify app (Liquid frontend, Node.js backend) deployed on AWS Fargate with Docker, ALB load balancing, and auto-scaling.</p>
-                            <p><strong>4. run.wisbot.ai AI Platform:</strong> Built React.js frontend, Flask + WSGI backend, and Stripe payment integration deployed on AWS EC2.</p>
-                            <p><strong>5. DevOps Automation:</strong> Configured Git and Jenkins CI/CD pipelines for automated Odoo deployments.</p>
+                            <p><strong>1. Odoo ERP Customization:</strong> Tailored Odoo modules in Python & JavaScript for key enterprise workflows.</p>
+                            <p><strong>2. Hardware API Integration:</strong> Integrated PHD Energy Odoo ERP with Texas Instruments API using Python.</p>
+                            <p><strong>3. Best Buy Shopify App:</strong> Custom in-store pickup app (Liquid / Node.js) deployed on AWS Fargate + Docker with ALB load balancing.</p>
+                            <p><strong>4. run.wisbot.ai AI Platform:</strong> Built React.js frontend, Flask + WSGI backend with Stripe payment processing on AWS EC2.</p>
+                            <p><strong>5. CI/CD Pipeline:</strong> Implemented Git and Jenkins pipelines for seamless Odoo deployments.</p>
                         </div>
                     </div>
                 `
@@ -924,22 +960,22 @@
                 period: 'Live Web App',
                 content: `
                     <div class="space-y-3">
-                        <p class="font-bold">Project Details:</p>
+                        <p class="font-bold">Project Overview:</p>
                         <p class="text-slate-700 dark:text-zinc-300">Full-stack e-commerce platform for ordering Canadian products delivered directly to Hong Kong.</p>
-                        <p><strong>Features:</strong> Built end-to-end with AI-assisted software development, complete product catalog, dynamic cart, checkout, and order management system.</p>
+                        <p><strong>Highlights:</strong> End-to-end AI-assisted development, product search, cart logic, user order management, and secure checkout.</p>
                         <p class="font-mono text-blue-600 dark:text-blue-400">URL: https://semibuyx.duckdns.org/</p>
                     </div>
                 `
             },
             'greenworks': {
                 title: 'Greenworks Tools E-Shop',
-                company: 'Shopify Store',
-                period: 'Official E-Commerce Store',
+                company: 'Official Shopify Store',
+                period: 'E-Commerce Store',
                 content: `
                     <div class="space-y-3">
-                        <p class="font-bold">Project Details:</p>
+                        <p class="font-bold">Project Overview:</p>
                         <p class="text-slate-700 dark:text-zinc-300">Assisted in developing and customizing the official Shopify store for Greenworks Tools.</p>
-                        <p><strong>Tech Stack:</strong> Liquid, HTML5, CSS3, JavaScript. Enhanced product displays and user experience.</p>
+                        <p><strong>Tech Stack:</strong> Shopify Liquid, HTML5, CSS3, JavaScript. Enhanced store performance and visual presentation.</p>
                         <p class="font-mono text-blue-600 dark:text-blue-400">URL: https://www.greenworkstools.com/</p>
                     </div>
                 `
@@ -950,9 +986,9 @@
                 period: 'Jan 2023 - Sep 2023',
                 content: `
                     <div class="space-y-3">
-                        <p class="font-bold">Education Overview:</p>
-                        <p class="text-slate-700 dark:text-zinc-300">Post-Graduate Certificate in Mobile Application Development in Canada.</p>
-                        <p>Specialized coursework in iOS (Swift), Android (Kotlin), cross-platform React Native, mobile architecture, and REST API integration.</p>
+                        <p class="font-bold">Education Details:</p>
+                        <p class="text-slate-700 dark:text-zinc-300">Post-Graduate Certificate in Mobile Application Development in Toronto, Canada.</p>
+                        <p>Covered native Android (Kotlin), iOS (Swift), cross-platform React Native, SQLite/REST integrations, and software design patterns.</p>
                     </div>
                 `
             },
@@ -962,13 +998,13 @@
                 period: 'Dec 2018 - May 2022',
                 content: `
                     <div class="space-y-3">
-                        <p class="font-bold">Key Responsibilities & Hardware Tech:</p>
+                        <p class="font-bold">Key Responsibilities & System Architecture:</p>
                         <ul class="list-disc list-inside space-y-1.5 text-slate-700 dark:text-zinc-300">
-                            <li>Embedded software development using C for real-time applications and FPGA with embedded processors.</li>
-                            <li>Worked on commercial voice capturing products: TV set-top boxes, Hi-Res audio, smart speakers, robots, speakerphones, and smart home panels.</li>
-                            <li>Proficient in <strong>FreeRTOS</strong> for real-time systems.</li>
-                            <li>Specialized in <strong>digital signal processing (DSP)</strong> and multi-channel audio processing.</li>
-                            <li>Developed low-level serial protocols: <strong>SPI, I2C, and I2S</strong>.</li>
+                            <li>C programming for real-time applications and embedded FPGA processors.</li>
+                            <li>Engineered voice capturing products: TV set-top boxes, Hi-Res audio, smart speakers, robotics, speakerphones, and smart home panels.</li>
+                            <li>Expertise in <strong>FreeRTOS</strong> for multi-threaded deterministic real-time systems.</li>
+                            <li>Specialized in <strong>digital signal processing (DSP)</strong> for multi-microphone audio capture.</li>
+                            <li>Implemented low-level communication drivers for <strong>SPI, I2C, and I2S</strong>.</li>
                         </ul>
                     </div>
                 `
@@ -986,21 +1022,86 @@
             }
         };
 
-        // MULTI-PAGE PRINT TRIGGER HANDLER
+        /* ==========================================================================
+           INTERSECTION OBSERVER SCROLL ANIMATIONS FOR TIMELINE CARDS & NODES
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTimelineObserver();
+            setupTimelineScrollLine();
+        });
+
+        function setupTimelineObserver() {
+            const workspace = document.getElementById('workspace-container');
+            
+            // Observer options targeting workspace container scrolling
+            const observerOptions = {
+                root: workspace,
+                rootMargin: '-50px 0px -50px 0px',
+                threshold: 0.2
+            };
+
+            const timelineObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const card = entry.target;
+                    const nodeDot = card.querySelector('.timeline-node');
+
+                    if (entry.isIntersecting) {
+                        // Card slides in bidirectional (scroll down & up)
+                        card.classList.add('in-view');
+                        if (nodeDot) {
+                            nodeDot.classList.add('active-node');
+                        }
+                    } else {
+                        // Allow continuous bidirectional re-animation on scroll
+                        card.classList.remove('in-view');
+                        if (nodeDot) {
+                            nodeDot.classList.remove('active-node');
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            const cards = document.querySelectorAll('.timeline-card');
+            cards.forEach(card => timelineObserver.observe(card));
+        }
+
+        /* Calculate and update central timeline line fill percentage */
+        function setupTimelineScrollLine() {
+            const workspace = document.getElementById('workspace-container');
+            const progressLine = document.getElementById('timeline-progress-line');
+            const timelineContainer = document.getElementById('timeline-container');
+
+            if (!workspace || !progressLine || !timelineContainer) return;
+
+            function updateScrollProgress() {
+                const containerRect = timelineContainer.getBoundingClientRect();
+                const workspaceRect = workspace.getBoundingClientRect();
+
+                const totalHeight = containerRect.height;
+                const visibleTop = workspaceRect.top - containerRect.top + (workspaceRect.height / 2);
+                
+                let fillPercentage = (visibleTop / totalHeight) * 100;
+                fillPercentage = Math.max(0, Math.min(100, fillPercentage));
+
+                progressLine.style.height = `${fillPercentage}%`;
+            }
+
+            workspace.addEventListener('scroll', updateScrollProgress, { passive: true });
+            updateScrollProgress();
+        }
+
+        /* Multi-page print handler */
         function triggerPrintDocument() {
-            // Temporarily clear any filter so ALL items print on paper
             const input = document.getElementById('formulaBarInput');
             const storedValue = input.value;
             
-            // Render all items for printing
+            // Reset filters so all timeline items are visible in PDF/Print
             onFormulaSearchInput('');
             
-            showToast('Preparing Print View', 'Sending all pages to browser print dialog...');
+            showToast('Preparing Print View', 'Generating multi-page PDF document...');
             
-            // Trigger browser native print engine
             setTimeout(() => {
                 window.print();
-                // Restore search filter if present
                 if (storedValue) {
                     input.value = storedValue;
                     onFormulaSearchInput(storedValue);
@@ -1008,7 +1109,7 @@
             }, 300);
         }
 
-        // Real-Time Formula Bar Search Filter
+        /* Formula Bar Search Engine */
         function onFormulaSearchInput(query) {
             const cleanQuery = query.toLowerCase().trim();
             const items = document.querySelectorAll('.timeline-card');
@@ -1020,11 +1121,11 @@
 
                 if (!cleanQuery || keywords.includes(cleanQuery) || textContent.includes(cleanQuery)) {
                     item.style.display = 'flex';
-                    item.style.opacity = '1';
+                    setTimeout(() => item.classList.add('in-view'), 50);
                     visibleCount++;
                 } else {
                     item.style.display = 'none';
-                    item.style.opacity = '0';
+                    item.classList.remove('in-view');
                 }
             });
 
@@ -1046,11 +1147,11 @@
                 const itemCat = item.getAttribute('data-category');
                 if (category === 'all' || itemCat === category) {
                     item.style.display = 'flex';
-                    item.style.opacity = '1';
+                    setTimeout(() => item.classList.add('in-view'), 50);
                     visibleCount++;
                 } else {
                     item.style.display = 'none';
-                    item.style.opacity = '0';
+                    item.classList.remove('in-view');
                 }
             });
 
@@ -1075,21 +1176,21 @@
                 appIcon.className = 'fa-solid fa-file-word text-sm';
                 docTitle.textContent = 'Career_Timeline_Portfolio_YeungCheukKwan.docx';
                 fileBtn.className = fileBtn.className.replace(/bg-\w+-\d+/, 'bg-blue-800');
-                showToast('Theme Updated', 'Switched to Microsoft Word Theme');
+                showToast('Theme Applied', 'Switched to Microsoft Word Theme');
             } else {
                 document.body.classList.add('theme-excel');
                 titlebar.className = titlebar.className.replace(/bg-office-\w+/, 'bg-office-excel');
                 appIcon.className = 'fa-solid fa-file-excel text-sm';
                 docTitle.textContent = 'Career_Timeline_Portfolio_YeungCheukKwan.xlsx';
                 fileBtn.className = fileBtn.className.replace(/bg-\w+-\d+/, 'bg-emerald-700');
-                showToast('Theme Updated', 'Switched to Microsoft Excel Theme');
+                showToast('Theme Applied', 'Switched to Microsoft Excel Theme');
             }
         }
 
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
-            showToast('Office Mode', isDark ? 'Dark Theme Activated' : 'Light Theme Activated');
+            showToast('Office Mode', isDark ? 'Dark Mode Activated' : 'Light Mode Activated');
         }
 
         function switchRibbonTab(tabKey) {
@@ -1101,6 +1202,8 @@
 
             if (tabKey === 'timeline') {
                 scrollToSection('timeline-section');
+            } else if (tabKey === 'projects') {
+                scrollToSection('projects-section');
             } else if (tabKey === 'skills') {
                 scrollToSection('skills-section');
             } else if (tabKey === 'home') {
@@ -1164,7 +1267,7 @@
         }
 
         function saveDocumentSimulated() {
-            showToast('Saved Copy', 'Career_Timeline_Portfolio_YeungCheukKwan.xlsx saved');
+            showToast('File Saved', 'Career_Timeline_Portfolio_YeungCheukKwan.xlsx saved');
         }
 
         function showToast(title, msg) {
@@ -1181,13 +1284,11 @@
             }, 2500);
         }
 
-        // Automatic Print Event Hooks
+        /* Reset zoom for print engine */
         window.onbeforeprint = function() {
-            // Un-scale zoomed canvas before printing
             document.getElementById('workspace-content').style.transform = 'none';
         };
         window.onafterprint = function() {
-            // Restore current zoom slider setting
             setZoomScale(document.getElementById('zoomSlider').value);
         };
     </script>
