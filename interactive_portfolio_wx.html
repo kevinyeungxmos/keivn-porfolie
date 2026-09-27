@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kevin Online Portfolio</title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="48x48" href="./portfolio_icon-48.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Aptos', 'Arial', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        office: {
+                            excel: '#107c41',
+                            excelDark: '#0b592e',
+                            word: '#2b579a',
+                            wordDark: '#1c3d70',
+                            ribbonBg: '#f3f2f1',
+                            ribbonBorder: '#e1dfdd',
+                            gridLine: '#e1dfdd',
+                            selectedCell: '#107c41',
+                            headerGray: '#f8f9fa',
+                            statusBg: '#107c41'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Office App & Multi-Page Print Styles -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Aptos, Arial, sans-serif;
+            background-color: #f3f2f1;
+            color: #201f1e;
+            user-select: none;
+        }
+
+        /* Excel Background Grid */
+        .excel-grid-bg {
+            background-size: 120px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
+
+        .dark .excel-grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f3f2f1;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #252526;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c8c6c4;
+            border-radius: 0px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #979593;
+        }
+
+        /* Office Card Elevation */
+        .office-card {
+            background: #ffffff;
+            border: 1px solid #d1d1d1;
+            box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dark .office-card {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            color: #f1f1f1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        /* Ribbon Active Tab */
+        .ribbon-tab.active {
+            background-color: #ffffff;
+            color: #107c41;
+            border-bottom: 3px solid #107c41;
+            font-weight: 600;
+        }
+        .theme-word .ribbon-tab.active {
+            color: #2b579a;
+            border-bottom-color: #2b579a;
+        }
+        .dark .ribbon-tab.active {
+            background-color: #252526;
+            color: #4caf50;
+            border-bottom-color: #4caf50;
+        }
+
+        /* Workspace Scaling */
+        #workspace-content {
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+        }
+
+        /* ==========================================================================
+           CRITICAL MULTI-PAGE PRINT STYLESHEETS
+           ========================================================================== */
+        @media print {
+            /* 1. Hide interactive Office Chrome UI elements */
+            #app-titlebar,
+            #app-ribbon,
+            #formula-bar,
+            #status-bar,
+            #inspectModal,
+            #toast,
+            .no-print,
+            button,
+            select,
+            input {
+                display: none !important;
+            }
+
+            /* 2. Remove overflow & height locks to allow unlimited natural print scrolling */
+            html, body {
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 10.5pt !important;
+                user-select: auto !important;
+            }
+
+            #app-container,
+            #workspace-container,
+            #workspace-content {
+                display: block !important;
+                position: static !important;
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                transform: none !important; /* Reset zoom scaling for crisp print */
+                background: #ffffff !important;
+                box-shadow: none !important;
+            }
+
+            /* 3. Force all timeline cards and sheet sections to print */
+            section {
+                display: block !important;
+                opacity: 1 !important;
+                margin-bottom: 1.5rem !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+
+            .timeline-card {
+                display: block !important;
+                opacity: 1 !important;
+                transform: none !important;
+                margin-bottom: 1.25rem !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Convert alternating two-column cards into a clean vertical print document layout */
+            #timeline-container {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+
+            #timeline-line {
+                left: 12px !important;
+                background-color: #000000 !important;
+                width: 2px !important;
+            }
+
+            .timeline-card > div {
+                width: 100% !important;
+                padding-left: 2rem !important;
+                padding-right: 0 !important;
+            }
+
+            .timeline-card .absolute {
+                left: 12px !important;
+                width: 1.25rem !important;
+                height: 1.25rem !important;
+                font-size: 8pt !important;
+                background-color: #000000 !important;
+                color: #ffffff !important;
+                border: none !important;
+            }
+
+            .office-card {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #cccccc !important;
+                box-shadow: none !important;
+                padding: 1rem !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Print Header Banner */
+            .print-header-banner {
+                display: block !important;
+                border-bottom: 2px solid #000000;
+                padding-bottom: 0.75rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Ensure all table rows print cleanly */
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                page-break-inside: avoid !important;
+            }
+            th, td {
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
+                padding: 6px 8px !important;
+            }
+
+            /* Show hyperlinked URLs in print view */
+            a[href]:after {
+                content: " (" attr(href) ")";
+                font-size: 8.5pt;
+                color: #444444;
+            }
+        }
+
+        .print-header-banner {
+            display: none;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-sm theme-excel leading-normal" id="app-container">
+
+    <!-- 1. MICROSOFT OFFICE TITLE BAR -->
+    <header id="app-titlebar" class="bg-office-excel text-white h-9 flex items-center justify-between px-3 shrink-0 shadow-sm transition-colors duration-200">
+        <!-- Left: Quick Access Toolbar -->
+        <div class="flex items-center space-x-3 text-xs">
+            <div class="flex items-center space-x-2 border-r border-white/20 pr-3">
+                <i class="fa-solid fa-file-excel text-sm" id="app-type-icon"></i>
+                <span class="font-bold hidden sm:inline tracking-tight">AutoSave</span>
+                <span class="w-2 h-2 bg-emerald-300 rounded-full animate-pulse ml-1" title="AutoSave Active"></span>
+            </div>
+            
+            <button onclick="triggerPrintDocument()" class="hover:bg-white/20 px-2 py-1 rounded transition-colors flex items-center space-x-1" title="Print Multi-Page Portfolio (Ctrl+P)">
+                <i class="fa-solid fa-print"></i>
+                <span class="text-[11px] font-semibold hidden md:inline">Print / PDF</span>
+            </button>
+            <button onclick="saveDocumentSimulated()" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Save Copy">
+                <i class="fa-regular fa-floppy-disk"></i>
+            </button>
+            <button onclick="showToast('Undo Action', 'Previous spreadsheet view restored')" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Undo">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        </div>
+
+        <!-- Center: File Title -->
+        <div class="flex items-center space-x-2 text-xs font-semibold truncate px-2">
+            <span class="truncate" id="doc-title-text">Career_Timeline_Portfolio_YeungCheukKwan.xlsx</span>
+            <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] uppercase font-normal hidden md:inline">Ready for Print & PDF</span>
+        </div>
+
+        <!-- Right: Window Controls -->
+        <div class="flex items-center space-x-1 text-xs">
+            <button onclick="copyToClipboard('kevinyeung95m@gmail.com', 'Email Address')" class="hover:bg-white/20 px-2.5 py-1 rounded text-xs flex items-center space-x-1.5">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span class="hidden md:inline">Share Profile</span>
+            </button>
+            <div class="h-4 border-r border-white/20 mx-1"></div>
+            <button class="w-7 h-7 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fa-solid fa-minus"></i></button>
+            <button class="w-7 h-7 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fa-regular fa-square"></i></button>
+            <button class="w-7 h-7 hover:bg-red-600 flex items-center justify-center transition-colors"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </header>
+
+    <!-- 2. OFFICE RIBBON TOOLBAR -->
+    <div id="app-ribbon" class="bg-office-ribbonBg dark:bg-zinc-900 border-b border-office-ribbonBorder dark:border-zinc-800 text-slate-800 dark:text-zinc-200 shrink-0">
+        
+        <!-- Ribbon Header Tabs -->
+        <div class="flex items-center px-2 pt-1 border-b border-slate-300 dark:border-zinc-700 text-xs bg-slate-200/60 dark:bg-zinc-800/80 overflow-x-auto">
+            <button class="px-3 py-1.5 font-medium border-r border-slate-300 dark:border-zinc-700 bg-emerald-700 text-white dark:bg-emerald-800" id="fileMenuBtn">File</button>
+            <button onclick="switchRibbonTab('home')" class="ribbon-tab active px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Home</button>
+            <button onclick="switchRibbonTab('timeline')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Career Timeline</button>
+            <button onclick="switchRibbonTab('skills')" class="ribbon-tab px-3 py-1.5 text-slate-700 dark:text-zinc-300 hover:text-emerald-700 cursor-pointer">Skills Matrix</button>
+            <button onclick="triggerPrintDocument()" class="ribbon-tab px-3 py-1.5 text-emerald-800 dark:text-emerald-400 font-bold hover:bg-emerald-100 dark:hover:bg-zinc-700 cursor-pointer flex items-center gap-1">
+                <i class="fa-solid fa-print"></i>
+                <span>Print / PDF View</span>
+            </button>
+        </div>
+
+        <!-- Ribbon Action Controls Panel -->
+        <div class="p-2 flex items-center space-x-4 overflow-x-auto text-xs min-h-[68px]" id="ribbon-actions-container">
+            
+            <!-- Group 1: Print Action Button (Prominent) -->
+            <div class="flex items-center border-r border-slate-300 dark:border-zinc-700 pr-3">
+                <button onclick="triggerPrintDocument()" class="flex flex-col items-center justify-center px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded shadow-sm transition-all group">
+                    <i class="fa-solid fa-print text-lg mb-0.5 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] font-bold">Print Portfolio</span>
+                    <span class="text-[9px] text-emerald-100 font-mono">Multi-Page PDF</span>
+                </button>
+            </div>
+
+            <!-- Group 2: Contact Actions -->
+            <div class="flex items-center space-x-2 border-r border-slate-300 dark:border-zinc-700 pr-3">
+                <button onclick="copyToClipboard('kevinyeung95m@gmail.com', 'Email Address')" class="flex flex-col items-center justify-center p-1.5 hover:bg-slate-200 dark:hover:bg-zinc-800 rounded transition-colors">
+                    <i class="fa-solid fa-envelope text-emerald-700 dark:text-emerald-500 text-base mb-1"></i>
+                    <span class="text-[11px] font-medium">kevinyeung95m@gmail.com</span>
+                </button>
+                <button onclick="copyToClipboard('+85298508777', 'Phone Number')" class="flex flex-col items-center justify-center p-1.5 hover:bg-slate-200 dark:hover:bg-zinc-800 rounded transition-colors">
+                    <i class="fa-solid fa-phone text-emerald-700 dark:text-emerald-500 text-base mb-1"></i>
+                    <span class="text-[11px] font-medium">+852 98508777</span>
+                </button>
+            </div>
+
+            <!-- Group 3: Excel Category Filter Dropdown -->
+            <div class="flex flex-col justify-center border-r border-slate-300 dark:border-zinc-700 pr-3 space-y-1">
+                <span class="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Spreadsheet Data Filter</span>
+                <div class="flex items-center space-x-1">
+                    <i class="fa-solid fa-filter text-emerald-700 dark:text-emerald-500"></i>
+                    <select id="ribbonCategorySelect" onchange="filterTimeline(this.value)" class="bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-600">
+                        <option value="all">📊 All Career Records (Default)</option>
+                        <option value="work">💼 Work Experience Only</option>
+                        <option value="project">🚀 E-Commerce & Projects</option>
+                        <option value="education">🎓 Degree & Post-Grad Education</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Group 4: Office Theme Switcher -->
+            <div class="flex items-center space-x-2">
+                <button onclick="setOfficeTheme('excel')" class="px-2.5 py-1.5 bg-emerald-700 text-white rounded shadow-sm hover:bg-emerald-800 font-medium text-xs flex items-center space-x-1">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Excel</span>
+                </button>
+                <button onclick="setOfficeTheme('word')" class="px-2.5 py-1.5 bg-blue-700 text-white rounded shadow-sm hover:bg-blue-800 font-medium text-xs flex items-center space-x-1">
+                    <i class="fa-solid fa-file-word"></i>
+                    <span>Word</span>
+                </button>
+                <button onclick="toggleDarkMode()" class="px-2.5 py-1.5 bg-zinc-700 text-white rounded shadow-sm hover:bg-zinc-800 font-medium text-xs flex items-center space-x-1">
+                    <i class="fa-solid fa-moon"></i>
+                    <span>Dark</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. EXCEL FORMULA BAR -->
+    <div id="formula-bar" class="bg-white dark:bg-zinc-900 border-b border-slate-300 dark:border-zinc-800 px-3 py-1.5 flex items-center space-x-2 text-xs shrink-0">
+        <!-- Active Cell Box -->
+        <div class="bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 px-2.5 py-1 font-mono font-bold text-slate-700 dark:text-zinc-300 rounded min-w-[110px] text-center" id="activeCellRef">
+            A1:SUMMARY
+        </div>
+
+        <div class="text-slate-400 font-bold px-1 select-none">|</div>
+
+        <!-- Formula fx icon -->
+        <div class="font-serif italic font-bold text-emerald-700 dark:text-emerald-500 px-1 text-sm select-none">
+            fx
+        </div>
+
+        <!-- Interactive Formula Search Input -->
+        <div class="flex-1 relative">
+            <input 
+                type="text" 
+                id="formulaBarInput"
+                oninput="onFormulaSearchInput(this.value)"
+                placeholder="=FILTER(CareerData, Skill='Python, FreeRTOS, Shopify, AWS, Odoo, React, C++')" 
+                class="w-full bg-slate-50 dark:bg-zinc-800/90 border border-slate-300 dark:border-zinc-700 rounded px-3 py-1 font-mono text-xs text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:bg-white"
+            >
+            <button onclick="clearFormulaSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200" title="Clear Filter">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. MAIN WORKSPACE CANVAS -->
+    <div class="flex-1 overflow-auto bg-slate-200/70 dark:bg-zinc-950 p-4 sm:p-6 excel-grid-bg relative" id="workspace-container">
+        
+        <!-- PRINT HEADER BANNER (Only displays on printed paper pages) -->
+        <div class="print-header-banner">
+            <h1 class="text-2xl font-bold">YEUNG CHEUK KWAN (KEVIN)</h1>
+            <p class="text-xs">Software Developer & Embedded Software Engineer | Phone: +852 98508777 | Email: kevinyeung95m@gmail.com</p>
+        </div>
+
+        <div id="workspace-content" class="max-w-5xl mx-auto space-y-8 pb-16">
+
+            <!-- EXECUTIVE SUMMARY SECTION -->
+            <section id="summary-section" class="office-card rounded-md p-6 sm:p-8 relative overflow-hidden border-t-4 border-t-emerald-700" onclick="setActiveCell('A1:SUMMARY')">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-slate-200 dark:border-zinc-800">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-400 text-xs font-mono font-bold px-2.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                CANDIDATE_RECORD: #00852-YK
+                            </span>
+                            <span class="text-xs text-slate-500 dark:text-zinc-400 font-mono">Location: Hong Kong</span>
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                            Yeung Cheuk Kwan <span class="text-base font-normal text-slate-500 dark:text-zinc-400">(Kevin)</span>
+                        </h1>
+                        <p class="text-base font-semibold text-emerald-700 dark:text-emerald-400">
+                            Software Developer & Embedded Software Engineer
+                        </p>
+                    </div>
+
+                    <!-- Direct Contact Badges -->
+                    <div class="flex flex-col sm:flex-row md:flex-col gap-2 w-full md:w-auto text-xs">
+                        <a href="mailto:kevinyeung95m@gmail.com" class="flex items-center space-x-2 px-3 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-zinc-700 rounded border border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors">
+                            <i class="fa-solid fa-envelope text-emerald-700 dark:text-emerald-400"></i>
+                            <span class="font-mono">kevinyeung95m@gmail.com</span>
+                        </a>
+                        <a href="tel:+85298508777" class="flex items-center space-x-2 px-3 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-zinc-700 rounded border border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors">
+                            <i class="fa-solid fa-phone text-emerald-700 dark:text-emerald-400"></i>
+                            <span class="font-mono">+852 98508777</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Executive Summary Text Box -->
+                <div class="mt-6 space-y-4 text-slate-700 dark:text-zinc-300 text-sm leading-relaxed">
+                    <div class="bg-slate-50 dark:bg-zinc-800/60 p-4 rounded border border-slate-200 dark:border-zinc-700/80">
+                        <h2 class="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-waveform text-emerald-700 dark:text-emerald-400"></i>
+                            Executive Profile & Professional Overview
+                        </h2>
+                        <p>
+                            Results-oriented Software Developer and Embedded Software Engineer with extensive experience spanning full-stack web development, e-commerce applications, enterprise ERP customization (Odoo), cloud infrastructure deployment (AWS Fargate/EC2, Docker, CI/CD), and embedded C real-time DSP systems (FreeRTOS, low-level serial communication protocols). Proven track record delivering end-to-end scalable solutions from low-level firmware to modern AI-assisted web applications.
+                        </p>
+                    </div>
+
+                    <!-- Key Pillars Spreadsheet Metrics -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 font-mono text-xs">
+                        <div class="p-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded text-center">
+                            <span class="text-slate-400 block text-[10px]">TOTAL_EXP</span>
+                            <span class="text-lg font-bold text-emerald-700 dark:text-emerald-400">7+ Years</span>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded text-center">
+                            <span class="text-slate-400 block text-[10px]">FULL_STACK</span>
+                            <span class="text-lg font-bold text-blue-700 dark:text-blue-400">Python / JS / React</span>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded text-center">
+                            <span class="text-slate-400 block text-[10px]">EMBEDDED_C</span>
+                            <span class="text-lg font-bold text-emerald-700 dark:text-emerald-400">FreeRTOS / DSP</span>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded text-center">
+                            <span class="text-slate-400 block text-[10px]">EDUCATION</span>
+                            <span class="text-lg font-bold text-purple-700 dark:text-purple-400">BEng & Post-Grad</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VERTICAL ALTERNATING CAREER TIMELINE SECTION -->
+            <section id="timeline-section" class="space-y-6">
+                
+                <!-- Section Header Bar -->
+                <div class="bg-slate-100 dark:bg-zinc-800 p-3 rounded border border-slate-300 dark:border-zinc-700 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-emerald-700 text-white font-mono text-xs font-bold px-2 py-1 rounded">SHEET_2</span>
+                        <h2 class="font-bold text-slate-800 dark:text-zinc-100 text-base">Interactive Career & Experience Timeline</h2>
+                    </div>
+                    <button onclick="triggerPrintDocument()" class="text-xs text-emerald-700 dark:text-emerald-400 hover:underline font-mono font-bold flex items-center space-x-1">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Print Sheet</span>
+                    </button>
+                </div>
+
+                <!-- Timeline Container with Central Line -->
+                <div class="relative py-6" id="timeline-container">
+                    
+                    <!-- Vertical Central Accent Line -->
+                    <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-emerald-700 dark:bg-emerald-600 rounded transform md:-translate-x-1/2 z-0 opacity-80" id="timeline-line"></div>
+
+                    <!-- TIMELINE ITEMS CONTAINER -->
+                    <div class="space-y-10 relative z-10" id="timeline-items-wrapper">
+
+                        <!-- 1. Digital Star (Work - Left Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="digital star software developer odoo python javascript shopify best buy aws fargate docker alb wisbot react flask rest api jenkins git">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                1
+                            </div>
+
+                            <!-- Left Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                                <div onclick="setActiveCell('B2:DIGITAL_STAR'); openInspectModal('digital-star')" class="office-card rounded-md p-5 cursor-pointer hover:border-emerald-600 transition-all border-l-4 border-l-emerald-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                            Dec 2023 - Sep 2026
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [WORK EXPERIENCE]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                                        <span>Software Developer</span>
+                                        <i class="fa-solid fa-up-right-from-square text-xs text-slate-400 group-hover:text-emerald-600 no-print"></i>
+                                    </h3>
+                                    <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">Digital Star</p>
+
+                                    <ul class="text-xs text-slate-700 dark:text-zinc-300 space-y-1.5 list-disc list-inside leading-relaxed">
+                                        <li>Developed and customized <strong>Odoo ERP modules</strong> in Python and JavaScript for client needs, focusing on scalability and performance.</li>
+                                        <li>Integrated PHD Energy Odoo ERP with <strong>Texas Instruments API</strong> using Python scripts.</li>
+                                        <li>Built a custom Shopify app enabling in-store pickup at Best Buy (Liquid frontend, Node.js backend): deployed on <strong>AWS Fargate with Docker</strong>, ALB for load balancing, and auto-scaling for high availability.</li>
+                                        <li>Contributed to <strong>run.wisbot.ai</strong> (AI tool for non-coders to write Python code): React.js frontend, Flask + WSGI backend added Stripe payments; deployed on AWS EC2.</li>
+                                        <li>Customized Shopify themes with Liquid, HTML, CSS, JavaScript, and React.js.</li>
+                                        <li>Implemented CI/CD pipelines with Git and Jenkins for Odoo deployments.</li>
+                                    </ul>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Python</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Odoo ERP</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">AWS Fargate</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Docker</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">React / Flask</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">MySQL</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+                        </div>
+
+                        <!-- 2. SemiBuyx (Project - Right Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="semibuyx project fullstack e-commerce ecommerce canadian products hong kong ai development semibuyx.duckdns.org catalog cart checkout">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                2
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+
+                            <!-- Right Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                                <div onclick="setActiveCell('C2:SEMIBUYX'); openInspectModal('semibuyx')" class="office-card rounded-md p-5 cursor-pointer hover:border-blue-600 transition-all border-l-4 border-l-blue-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2 py-0.5 rounded border border-blue-300 dark:border-blue-800">
+                                            Featured Project
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [FEATURED E-COMMERCE]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                                        <span>SemiBuyx E-Commerce Platform</span>
+                                        <i class="fa-solid fa-up-right-from-square text-xs text-slate-400 group-hover:text-blue-600 no-print"></i>
+                                    </h3>
+                                    <a href="https://semibuyx.duckdns.org/" target="_blank" onclick="event.stopPropagation()" class="text-xs font-mono text-blue-700 dark:text-blue-400 hover:underline mb-3 inline-block">
+                                        https://semibuyx.duckdns.org/
+                                    </a>
+
+                                    <p class="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed mb-3">
+                                        Full-stack e-commerce platform for Canadian products delivered to Hong Kong. Built end-to-end with AI-assisted development, featuring product catalog, shopping cart, checkout, and order management.
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Full-Stack</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">AI-Assisted Dev</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">E-Commerce</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">MySQL</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Greenworks Tools E-Shop (Project - Left Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="project" data-keywords="greenworks tools e-shop shopify store liquid custom theme frontend HTML CSS javascript">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                3
+                            </div>
+
+                            <!-- Left Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                                <div onclick="setActiveCell('C3:GREENWORKS'); openInspectModal('greenworks')" class="office-card rounded-md p-5 cursor-pointer hover:border-blue-600 transition-all border-l-4 border-l-blue-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-blue-800 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 px-2 py-0.5 rounded border border-blue-300 dark:border-blue-800">
+                                            E-Commerce Project
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [SHOPIFY STORE]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                                        <span>Greenworks Tools E-Shop</span>
+                                        <i class="fa-solid fa-up-right-from-square text-xs text-slate-400 group-hover:text-blue-600 no-print"></i>
+                                    </h3>
+                                    <a href="https://www.greenworkstools.com/" target="_blank" onclick="event.stopPropagation()" class="text-xs font-mono text-blue-700 dark:text-blue-400 hover:underline mb-3 inline-block">
+                                        https://www.greenworkstools.com/
+                                    </a>
+
+                                    <p class="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed">
+                                        Assisted in developing and customizing the official Shopify e-commerce store for Greenworks Tools, focusing on theme development, product presentation, and enhanced user experience using Liquid, HTML, CSS, and JavaScript.
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Shopify Liquid</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">JavaScript</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Theme Customization</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Github</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Restful API</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+                        </div>
+
+                        <!-- 4. George Brown College (Education - Right Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="george brown college post-graduate certificate mobile application development canada toronto react native kotlin swift">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                4
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+
+                            <!-- Right Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                                <div onclick="setActiveCell('D1:GEORGE_BROWN'); openInspectModal('george-brown')" class="office-card rounded-md p-5 cursor-pointer hover:border-purple-600 transition-all border-l-4 border-l-purple-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2 py-0.5 rounded border border-purple-300 dark:border-purple-800">
+                                            Jan 2023 - Sep 2023
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [EDUCATION & CREDENTIAL]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">George Brown College</h3>
+                                    <p class="text-xs font-bold text-purple-700 dark:text-purple-400">Post-Graduate Certificate in Mobile Application Development</p>
+
+                                    <p class="text-xs text-slate-700 dark:text-zinc-300 mt-2">
+                                        Specialized post-graduate training covering modern cross-platform & native mobile application architectures (iOS / Android), API integration, and cloud datastores.
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Mobile App Dev</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Kotlin / Swift</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">HTML CSS</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. XMOS LIMITED (Work - Left Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="work" data-keywords="xmos limited embedded software engineer c c++ freertos fpga dsp digital signal processing audio tv set-top boxes smart speakers robots spi i2c i2s">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                5
+                            </div>
+
+                            <!-- Left Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pr-10 pl-12 md:pl-0">
+                                <div onclick="setActiveCell('B3:XMOS_LIMITED'); openInspectModal('xmos')" class="office-card rounded-md p-5 cursor-pointer hover:border-emerald-600 transition-all border-l-4 border-l-emerald-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                            Dec 2018 - May 2022
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [WORK EXPERIENCE]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                                        <span>Embedded Software Engineer</span>
+                                        <i class="fa-solid fa-up-right-from-square text-xs text-slate-400 group-hover:text-emerald-600 no-print"></i>
+                                    </h3>
+                                    <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">XMOS LIMITED</p>
+
+                                    <ul class="text-xs text-slate-700 dark:text-zinc-300 space-y-1.5 list-disc list-inside leading-relaxed">
+                                        <li>Developed embedded software using C for various real-time applications and FPGA with embedded processors.</li>
+                                        <li>Worked on voice capturing products, including TV set-top boxes, Hi-Res audio systems, smart speakers, robots, speakerphones, and smart home panels.</li>
+                                        <li>Proficient in <strong>FreeRTOS development</strong> for real-time deterministic hardware systems.</li>
+                                        <li>Specialized in <strong>digital signal processing (DSP)</strong>, including multi-channel audio processing algorithms.</li>
+                                        <li>Developed low-level serial communication protocols such as <strong>SPI, I2C, and I2S</strong>.</li>
+                                    </ul>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Embedded C</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">FreeRTOS</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Altium Designer</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">FPGA / DSP</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">SPI / I2C / I2S</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+                        </div>
+
+                        <!-- 6. City University of Hong Kong (Education - Right Card) -->
+                        <div class="timeline-card relative flex flex-col md:flex-row items-center group" data-category="education" data-keywords="city university of hong kong bachelor of engineering electronic and communication engineering BEng cityu circuit signal processing">
+                            <!-- Timeline Dot Indicator -->
+                            <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-zinc-900 shadow-md z-20">
+                                6
+                            </div>
+
+                            <div class="hidden md:block w-1/2"></div>
+
+                            <!-- Right Card (Desktop) -->
+                            <div class="w-full md:w-1/2 md:pl-10 pl-12">
+                                <div onclick="setActiveCell('D2:CITY_U'); openInspectModal('cityu')" class="office-card rounded-md p-5 cursor-pointer hover:border-purple-600 transition-all border-l-4 border-l-purple-700">
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-[11px] font-mono font-bold text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/80 px-2 py-0.5 rounded border border-purple-300 dark:border-purple-800">
+                                            Sep 2014 - Jul 2018
+                                        </span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 font-mono">
+                                            [DEGREE EDUCATION]
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">City University of Hong Kong</h3>
+                                    <p class="text-xs font-bold text-purple-700 dark:text-purple-400">Bachelor of Engineering in Electronic and Communication Engineering</p>
+
+                                    <p class="text-xs text-slate-700 dark:text-zinc-300 mt-2">
+                                        Core engineering degree with focused study on electronic circuits, wireless communications, microprocessor system design, digital signal processing algorithms, and hardware fundamentals.
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-1 mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 font-mono text-[10px]">
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">BEng Electronic</span>
+                                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded">Signal & Comms</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- SKILLS MATRIX SPREADSHEET TABLE SECTION -->
+            <section id="skills-section" class="office-card rounded-md p-6 overflow-hidden">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-zinc-800 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-emerald-700 text-white font-mono text-xs font-bold px-2 py-1 rounded">SHEET_3</span>
+                        <h2 class="font-bold text-slate-800 dark:text-zinc-100 text-base">Technical Skills Spreadsheet Matrix</h2>
+                    </div>
+                    <span class="text-xs font-mono text-slate-500">RANGE: [A1:C5]</span>
+                </div>
+
+                <!-- Excel Grid Table View -->
+                <div class="overflow-x-auto border border-slate-300 dark:border-zinc-700 rounded">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-mono border-b border-slate-300 dark:border-zinc-700">
+                                <th class="p-2 border-r border-slate-300 dark:border-zinc-700 w-12 text-center bg-slate-200 dark:bg-zinc-700">#</th>
+                                <th class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold">Category (Col A)</th>
+                                <th class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold">Technologies & Tools (Col B)</th>
+                                <th class="p-2.5 font-bold">Domain Expertise (Col C)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-zinc-800 font-mono">
+                            <tr class="hover:bg-emerald-50/50 dark:hover:bg-zinc-800/50">
+                                <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">1</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold text-emerald-800 dark:text-emerald-400">Languages</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
+                                    C, C++, Python, Java, JavaScript, Kotlin, Swift, HTML, CSS, Node.js, React, React Native
+                                </td>
+                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Real-Time Firmware & Modern Web/Mobile</td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 dark:hover:bg-zinc-800/50">
+                                <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">2</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold text-blue-800 dark:text-blue-400">Databases</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
+                                    MySQL, MongoDB
+                                </td>
+                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Relational Schemas & Document Stores</td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 dark:hover:bg-zinc-800/50">
+                                <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">3</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold text-purple-800 dark:text-purple-400">Tools & DevOps</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
+                                    Git, Jenkins, AWS (EC2, Fargate, ALB), Docker, Shopify, WSGI, Restful APIs, Odoo ERP, Altium Designer
+                                </td>
+                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Cloud Microservices, Containers, CI/CD</td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/50 dark:hover:bg-zinc-800/50">
+                                <td class="p-2 border-r border-slate-300 dark:border-zinc-700 text-center bg-slate-100 dark:bg-zinc-800 text-slate-400">4</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 font-bold text-amber-800 dark:text-amber-400">Embedded Systems</td>
+                                <td class="p-2.5 border-r border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200">
+                                    FreeRTOS, FPGA, DSP Audio Processing, SPI, I2C, I2S Protocols
+                                </td>
+                                <td class="p-2.5 text-slate-600 dark:text-zinc-400">Real-Time Embedded C & Audio Signal Hardware</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- 5. AUTHENTIC OFFICE BOTTOM STATUS BAR -->
+    <footer id="status-bar" class="bg-office-statusBg text-white h-7 flex items-center justify-between px-3 text-xs select-none shrink-0 border-t border-white/20">
+        
+        <!-- Left: Status Indicator & Sheet Tabs -->
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-1 font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                <span class="uppercase tracking-wider text-[11px]" id="statusText">READY</span>
+            </div>
+
+            <div class="h-3 border-r border-white/30 hidden sm:block"></div>
+
+            <!-- Spreadsheet Tab Navigation Strip -->
+            <div class="hidden sm:flex items-center space-x-1 text-[11px] font-medium" id="sheetTabs">
+                <button onclick="scrollToSection('summary-section')" class="px-2.5 py-0.5 bg-white text-emerald-800 font-bold rounded-t shadow-sm">📊 Overview</button>
+                <button onclick="scrollToSection('timeline-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">⏳ Career Timeline</button>
+                <button onclick="scrollToSection('skills-section')" class="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded-t">🛠️ Skills Matrix</button>
+                <button onclick="triggerPrintDocument()" class="px-2.5 py-0.5 bg-emerald-900/60 hover:bg-emerald-900 rounded-t text-emerald-200 font-mono">🖨️ Printable View</button>
+            </div>
+        </div>
+
+        <!-- Right: Counter & Interactive Zoom Controls -->
+        <div class="flex items-center space-x-4">
+            <span class="font-mono text-[11px] hidden md:inline" id="recordCountText">RECORDS_DISPLAYED: 6</span>
+
+            <!-- Zoom Controller Slider -->
+            <div class="flex items-center space-x-1 text-[11px]">
+                <button onclick="adjustZoom(-10)" class="hover:bg-white/20 w-5 h-5 flex items-center justify-center rounded" title="Zoom Out">-</button>
+                <input type="range" id="zoomSlider" min="70" max="130" value="100" oninput="setZoomScale(this.value)" class="w-16 accent-white cursor-pointer">
+                <button onclick="adjustZoom(10)" class="hover:bg-white/20 w-5 h-5 flex items-center justify-center rounded" title="Zoom In">+</button>
+                <span class="font-mono w-10 text-right" id="zoomValText">100%</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 6. OFFICE DETAIL PROPERTIES MODAL DIALOG -->
+    <div id="inspectModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-200 p-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-md border border-slate-400 dark:border-zinc-700 shadow-2xl max-w-xl w-full text-slate-800 dark:text-zinc-100 overflow-hidden text-xs">
+            
+            <div class="bg-office-excel text-white px-4 py-2 flex items-center justify-between font-bold" id="modalHeader">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-window-maximize"></i>
+                    <span id="modalTitle">Record Inspection</span>
+                </span>
+                <button onclick="closeInspectModal()" class="hover:bg-white/20 w-6 h-6 flex items-center justify-center rounded"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="modalBody">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="bg-slate-100 dark:bg-zinc-800 px-4 py-2.5 border-t border-slate-300 dark:border-zinc-700 flex items-center justify-end space-x-2">
+                <button onclick="closeInspectModal()" class="px-4 py-1.5 bg-slate-200 dark:bg-zinc-700 hover:bg-slate-300 dark:hover:bg-zinc-600 rounded font-semibold text-slate-800 dark:text-zinc-200">
+                    Close Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded shadow-2xl flex items-center space-x-3 text-xs border-l-4 border-l-emerald-500">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <div>
+                <p id="toast-title" class="font-bold">Notification</p>
+                <p id="toast-msg" class="text-slate-300 font-mono">Action completed successfully.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION & PRINT ENGINE LOGIC -->
+    <script>
+        // Modal item details store
+        const itemDetailsMap = {
+            'digital-star': {
+                title: 'Digital Star - Software Developer Role Details',
+                company: 'Digital Star',
+                period: 'Dec 2023 - Sep 2026',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold text-slate-800 dark:text-zinc-100">Core Engineering Achievements:</p>
+                        <div class="bg-slate-50 dark:bg-zinc-800 p-3 rounded border border-slate-200 dark:border-zinc-700 space-y-2">
+                            <p><strong>1. Odoo ERP Customization:</strong> Developed and customized Odoo ERP modules in Python and JavaScript focused on performance and scale.</p>
+                            <p><strong>2. Hardware API Integration:</strong> Connected PHD Energy Odoo ERP with Texas Instruments API using Python.</p>
+                            <p><strong>3. Shopify App for Best Buy:</strong> Built in-store pickup Shopify app (Liquid frontend, Node.js backend) deployed on AWS Fargate with Docker, ALB load balancing, and auto-scaling.</p>
+                            <p><strong>4. run.wisbot.ai AI Platform:</strong> Built React.js frontend, Flask + WSGI backend, and Stripe payment integration deployed on AWS EC2.</p>
+                            <p><strong>5. DevOps Automation:</strong> Configured Git and Jenkins CI/CD pipelines for automated Odoo deployments.</p>
+                        </div>
+                    </div>
+                `
+            },
+            'semibuyx': {
+                title: 'SemiBuyx E-Commerce Project',
+                company: 'Full-Stack E-Commerce Platform',
+                period: 'Live Web App',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold">Project Details:</p>
+                        <p class="text-slate-700 dark:text-zinc-300">Full-stack e-commerce platform for ordering Canadian products delivered directly to Hong Kong.</p>
+                        <p><strong>Features:</strong> Built end-to-end with AI-assisted software development, complete product catalog, dynamic cart, checkout, and order management system.</p>
+                        <p class="font-mono text-blue-600 dark:text-blue-400">URL: https://semibuyx.duckdns.org/</p>
+                    </div>
+                `
+            },
+            'greenworks': {
+                title: 'Greenworks Tools E-Shop',
+                company: 'Shopify Store',
+                period: 'Official E-Commerce Store',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold">Project Details:</p>
+                        <p class="text-slate-700 dark:text-zinc-300">Assisted in developing and customizing the official Shopify store for Greenworks Tools.</p>
+                        <p><strong>Tech Stack:</strong> Liquid, HTML5, CSS3, JavaScript. Enhanced product displays and user experience.</p>
+                        <p class="font-mono text-blue-600 dark:text-blue-400">URL: https://www.greenworkstools.com/</p>
+                    </div>
+                `
+            },
+            'george-brown': {
+                title: 'George Brown College - Post-Graduate Certificate',
+                company: 'Mobile Application Development',
+                period: 'Jan 2023 - Sep 2023',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold">Education Overview:</p>
+                        <p class="text-slate-700 dark:text-zinc-300">Post-Graduate Certificate in Mobile Application Development in Canada.</p>
+                        <p>Specialized coursework in iOS (Swift), Android (Kotlin), cross-platform React Native, mobile architecture, and REST API integration.</p>
+                    </div>
+                `
+            },
+            'xmos': {
+                title: 'XMOS LIMITED - Embedded Software Engineer',
+                company: 'XMOS LIMITED',
+                period: 'Dec 2018 - May 2022',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold">Key Responsibilities & Hardware Tech:</p>
+                        <ul class="list-disc list-inside space-y-1.5 text-slate-700 dark:text-zinc-300">
+                            <li>Embedded software development using C for real-time applications and FPGA with embedded processors.</li>
+                            <li>Worked on commercial voice capturing products: TV set-top boxes, Hi-Res audio, smart speakers, robots, speakerphones, and smart home panels.</li>
+                            <li>Proficient in <strong>FreeRTOS</strong> for real-time systems.</li>
+                            <li>Specialized in <strong>digital signal processing (DSP)</strong> and multi-channel audio processing.</li>
+                            <li>Developed low-level serial protocols: <strong>SPI, I2C, and I2S</strong>.</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'cityu': {
+                title: 'City University of Hong Kong - BEng Degree',
+                company: 'CityU HK',
+                period: 'Sep 2014 - Jul 2018',
+                content: `
+                    <div class="space-y-3">
+                        <p class="font-bold">Degree Details:</p>
+                        <p class="text-slate-700 dark:text-zinc-300">Bachelor of Engineering in Electronic and Communication Engineering.</p>
+                    </div>
+                `
+            }
+        };
+
+        // MULTI-PAGE PRINT TRIGGER HANDLER
+        function triggerPrintDocument() {
+            // Temporarily clear any filter so ALL items print on paper
+            const input = document.getElementById('formulaBarInput');
+            const storedValue = input.value;
+            
+            // Render all items for printing
+            onFormulaSearchInput('');
+            
+            showToast('Preparing Print View', 'Sending all pages to browser print dialog...');
+            
+            // Trigger browser native print engine
+            setTimeout(() => {
+                window.print();
+                // Restore search filter if present
+                if (storedValue) {
+                    input.value = storedValue;
+                    onFormulaSearchInput(storedValue);
+                }
+            }, 300);
+        }
+
+        // Real-Time Formula Bar Search Filter
+        function onFormulaSearchInput(query) {
+            const cleanQuery = query.toLowerCase().trim();
+            const items = document.querySelectorAll('.timeline-card');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const keywords = (item.getAttribute('data-keywords') || '').toLowerCase();
+                const textContent = item.textContent.toLowerCase();
+
+                if (!cleanQuery || keywords.includes(cleanQuery) || textContent.includes(cleanQuery)) {
+                    item.style.display = 'flex';
+                    item.style.opacity = '1';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.style.opacity = '0';
+                }
+            });
+
+            document.getElementById('recordCountText').textContent = `RECORDS_DISPLAYED: ${visibleCount}`;
+            document.getElementById('statusText').textContent = cleanQuery ? `FILTERED ("${cleanQuery}")` : 'READY';
+        }
+
+        function clearFormulaSearch() {
+            const input = document.getElementById('formulaBarInput');
+            input.value = '';
+            onFormulaSearchInput('');
+        }
+
+        function filterTimeline(category) {
+            const items = document.querySelectorAll('.timeline-card');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const itemCat = item.getAttribute('data-category');
+                if (category === 'all' || itemCat === category) {
+                    item.style.display = 'flex';
+                    item.style.opacity = '1';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.style.opacity = '0';
+                }
+            });
+
+            document.getElementById('recordCountText').textContent = `RECORDS_DISPLAYED: ${visibleCount}`;
+        }
+
+        function setActiveCell(cellRef) {
+            document.getElementById('activeCellRef').textContent = cellRef;
+        }
+
+        function setOfficeTheme(theme) {
+            const titlebar = document.getElementById('app-titlebar');
+            const appIcon = document.getElementById('app-type-icon');
+            const docTitle = document.getElementById('doc-title-text');
+            const fileBtn = document.getElementById('fileMenuBtn');
+
+            document.body.classList.remove('theme-word', 'theme-excel', 'dark');
+
+            if (theme === 'word') {
+                document.body.classList.add('theme-word');
+                titlebar.className = titlebar.className.replace(/bg-office-\w+/, 'bg-office-word');
+                appIcon.className = 'fa-solid fa-file-word text-sm';
+                docTitle.textContent = 'Career_Timeline_Portfolio_YeungCheukKwan.docx';
+                fileBtn.className = fileBtn.className.replace(/bg-\w+-\d+/, 'bg-blue-800');
+                showToast('Theme Updated', 'Switched to Microsoft Word Theme');
+            } else {
+                document.body.classList.add('theme-excel');
+                titlebar.className = titlebar.className.replace(/bg-office-\w+/, 'bg-office-excel');
+                appIcon.className = 'fa-solid fa-file-excel text-sm';
+                docTitle.textContent = 'Career_Timeline_Portfolio_YeungCheukKwan.xlsx';
+                fileBtn.className = fileBtn.className.replace(/bg-\w+-\d+/, 'bg-emerald-700');
+                showToast('Theme Updated', 'Switched to Microsoft Excel Theme');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            showToast('Office Mode', isDark ? 'Dark Theme Activated' : 'Light Theme Activated');
+        }
+
+        function switchRibbonTab(tabKey) {
+            const tabs = document.querySelectorAll('.ribbon-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            if (event && event.currentTarget && event.currentTarget.classList) {
+                event.currentTarget.classList.add('active');
+            }
+
+            if (tabKey === 'timeline') {
+                scrollToSection('timeline-section');
+            } else if (tabKey === 'skills') {
+                scrollToSection('skills-section');
+            } else if (tabKey === 'home') {
+                scrollToSection('summary-section');
+            }
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function setZoomScale(scaleVal) {
+            const content = document.getElementById('workspace-content');
+            const valText = document.getElementById('zoomValText');
+            content.style.transform = `scale(${scaleVal / 100})`;
+            valText.textContent = `${scaleVal}%`;
+        }
+
+        function adjustZoom(delta) {
+            const slider = document.getElementById('zoomSlider');
+            let newVal = parseInt(slider.value) + delta;
+            if (newVal >= 70 && newVal <= 130) {
+                slider.value = newVal;
+                setZoomScale(newVal);
+            }
+        }
+
+        function openInspectModal(key) {
+            const details = itemDetailsMap[key] || { title: 'Record Details', company: '', period: '', content: 'No extra details.' };
+            document.getElementById('modalTitle').textContent = details.title;
+            document.getElementById('modalBody').innerHTML = details.content;
+
+            const modal = document.getElementById('inspectModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+        }
+
+        function closeInspectModal() {
+            const modal = document.getElementById('inspectModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.classList.remove('opacity-100');
+        }
+
+        function copyToClipboard(text, label) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.select();
+                try { document.execCommand('copy'); } catch (err) {}
+                document.body.removeChild(textArea);
+            }
+            showToast(`${label} Copied`, text);
+        }
+
+        function saveDocumentSimulated() {
+            showToast('Saved Copy', 'Career_Timeline_Portfolio_YeungCheukKwan.xlsx saved');
+        }
+
+        function showToast(title, msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').textContent = msg;
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 2500);
+        }
+
+        // Automatic Print Event Hooks
+        window.onbeforeprint = function() {
+            // Un-scale zoomed canvas before printing
+            document.getElementById('workspace-content').style.transform = 'none';
+        };
+        window.onafterprint = function() {
+            // Restore current zoom slider setting
+            setZoomScale(document.getElementById('zoomSlider').value);
+        };
+    </script>
+</body>
+</html>
